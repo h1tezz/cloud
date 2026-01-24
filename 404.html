@@ -184,7 +184,7 @@
     </div>
 
     <script>
-        (function () {
+        (async function () {
             try {
                 // Получаем путь из URL (убираем первый слэш)
                 let rawPath = window.location.pathname.substring(1);
@@ -199,43 +199,65 @@
                     return;
                 }
 
-                let payload = rawPath;
-
+                // 1. Расшифровываем Base64 чтобы получить add/domain/user/uuid
+                let subscriptionUrl = rawPath;
                 try {
                     // URL-safe Base64: заменяем - на +, _ на /
                     let safeBase64 = rawPath.replace(/-/g, '+').replace(/_/g, '/');
-
-                    // Добавляем padding если нужно (Base64 должен быть кратен 4)
+                    
+                    // Добавляем padding если нужно
                     while (safeBase64.length % 4 !== 0) {
                         safeBase64 += '=';
                     }
-
+                    
                     // Декодируем Base64
                     let decoded = atob(safeBase64);
-
-                    // Проверяем что получилось что-то похожее на add/domain/user/uuid
+                    
                     if (decoded.includes("add/")) {
-                        payload = decoded;
-                        document.getElementById('sub-status').innerText = "Данные расшифрованы. Подключаемся...";
-                    } else {
-                        // Fallback
-                        payload = rawPath;
-                        document.getElementById('sub-status').innerText = "Подключаемся...";
+                        subscriptionUrl = decoded;
+                        document.getElementById('sub-status').innerText = "Получаем конфигурацию...";
                     }
                 } catch (e) {
-                    console.log("Decode failed:", e);
-                    // Используем как есть
-                    payload = rawPath;
-                    document.getElementById('sub-status').innerText = "Подключаемся...";
+                    console.log("Base64 decode failed, using raw path");
                 }
 
-                // Формируем ссылку happ://
-                const deepLink = `happ://${payload}`;
+                // 2. Формируем полный URL подписки
+                const fullSubUrl = subscriptionUrl.startsWith('http') 
+                    ? subscriptionUrl 
+                    : `https://${subscriptionUrl}`;
 
-                // Активируем кнопку и редирект
+                // 3. Отправляем запрос к Happ API для шифрования
+                document.getElementById('sub-status').innerText = "Шифруем конфигурацию...";
+                
+                const response = await fetch('https://happ.shandy.dev/api/encode', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': '*/*',
+                        'Content-Type': 'application/json',
+                        'Origin': 'https://happ.shandy.dev',
+                        'Referer': 'https://happ.shandy.dev/'
+                    },
+                    body: JSON.stringify({
+                        version: 'crypt3',
+                        data: fullSubUrl
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('API request failed');
+                }
+
+                const result = await response.json();
+                
+                // 4. Получаем зашифрованную ссылку из ответа
+                const deepLink = result.link; // happ://crypt3/...
+
+                // 5. Активируем кнопку и редирект
                 const btn = document.getElementById('manual-btn');
                 btn.href = deepLink;
                 btn.style.display = 'flex';
+                
+                document.getElementById('sub-status').innerText = "Готово! Подключаемся...";
 
                 // Плавная задержка
                 setTimeout(() => {
