@@ -196,39 +196,43 @@
 
                 // Иногда на GitHub Pages путь может быть пустым или index.html
                 if (!rawPath || rawPath === "index.html") {
-                    return; // Тут ничего не делаем, либо редирект на главный сайт
+                    return;
                 }
 
                 let payload = rawPath;
 
                 try {
-                    // 1. Сначала Base64 decode (поддержка URL-safe Base64)
+                    // URL-safe Base64: заменяем - на +, _ на /
                     let safeBase64 = rawPath.replace(/-/g, '+').replace(/_/g, '/');
-                    let base64Decoded = atob(safeBase64);
 
-                    // 2. Затем URL decode
-                    let fullyDecoded = decodeURIComponent(base64Decoded);
+                    // Добавляем padding если нужно (Base64 должен быть кратен 4)
+                    while (safeBase64.length % 4 !== 0) {
+                        safeBase64 += '=';
+                    }
 
-                    // Проверка успешности
-                    if (fullyDecoded.includes("add/")) {
-                        payload = fullyDecoded;
+                    // Декодируем Base64
+                    let decoded = atob(safeBase64);
+
+                    // Проверяем что получилось что-то похожее на add/domain/user/uuid
+                    if (decoded.includes("add/")) {
+                        payload = decoded;
                         document.getElementById('sub-status').innerText = "Данные расшифрованы. Подключаемся...";
                     } else {
-                        // Если не похоже на валидный payload, используем оригинал
+                        // Fallback
                         payload = rawPath;
-                        document.getElementById('sub-status').innerText = "URL обработан. Подключаемся...";
+                        document.getElementById('sub-status').innerText = "Подключаемся...";
                     }
                 } catch (e) {
                     console.log("Decode failed:", e);
-                    // Fallback - используем оригинал без расшифровки
+                    // Используем как есть
                     payload = rawPath;
                     document.getElementById('sub-status').innerText = "Подключаемся...";
                 }
 
-                // 2. Формируем ссылку happ://
+                // Формируем ссылку happ://
                 const deepLink = `happ://${payload}`;
 
-                // 3. Активируем кнопку и редирект
+                // Активируем кнопку и редирект
                 const btn = document.getElementById('manual-btn');
                 btn.href = deepLink;
                 btn.style.display = 'flex';
