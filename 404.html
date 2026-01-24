@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloude VPN | Redirect</title>
+    <title>Cloude VPN | Redirect</title>
+    <style>
+        :root {
+            --primary: #00f2fe;
+            --secondary: #4facfe;
+            --bg-dark: #0a0e17;
+            --bg-card: #151a25;
+            --text-main: #ffffff;
+            --text-muted: #a0a0a0;
+            --accent-glow: rgba(79, 172, 254, 0.4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+            text-align: center;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            overflow: hidden;
+            margin: 0;
+            position: relative;
+        }
+
+        /* Background Effects */
+        .bg-glow {
+            position: fixed;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+            top: -100px;
+            left: -100px;
+            filter: blur(80px);
+            z-index: -1;
+            opacity: 0.6;
+            animation: pulse 10s infinite alternate;
+        }
+
+        .bg-glow:nth-child(2) {
+            top: auto;
+            bottom: -100px;
+            left: auto;
+            right: -100px;
+            background: radial-gradient(circle, rgba(169, 51, 245, 0.3) 0%, transparent 70%);
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            100% {
+                transform: scale(1.2);
+            }
+        }
+
+        .loader {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s infinite linear;
+            margin-bottom: 30px;
+            box-shadow: 0 0 20px rgba(0, 242, 254, 0.2);
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .status-container {
+            z-index: 10;
+            background: rgba(21, 26, 37, 0.8);
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 90%;
+            width: 400px;
+        }
+
+        .status-msg {
+            color: var(--text-main);
+            margin-bottom: 10px;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .sub-msg {
+            color: var(--text-muted);
+            margin-bottom: 30px;
+            font-size: 1rem;
+        }
+
+        #manual-btn {
+            display: none;
+            width: 100%;
+            justify-content: center;
+            padding: 15px 40px;
+            background: white;
+            color: black;
+            font-weight: 700;
+            border-radius: 12px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #manual-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(255, 255, 255, 0.15);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg-glow"></div>
+    <div class="bg-glow"></div>
+
+    <div class="status-container">
+        <div class="loader"></div>
+        <div class="status-msg" id="status">Обработка...</div>
+        <div class="sub-msg" id="sub-status">Расшифровываем параметры подключения</div>
+
+        <a href="#" class="cta-primary" id="manual-btn">
+            🚀 Открыть в Happ
+        </a>
+    </div>
+
+    <script>
+        (function () {
+            try {
+                // Получаем путь из URL (убираем первый слэш)
+                // Пример: https://site.io/ABCDEF -> ABCDEF
+                let rawPath = window.location.pathname.substring(1);
+
+                // Убираем возможный trailing slash
+                if (rawPath.endsWith('/')) {
+                    rawPath = rawPath.slice(0, -1);
+                }
+
+                if (!rawPath) {
+                    document.getElementById('status').innerText = "Ошибка";
+                    document.getElementById('sub-status').innerText = "Ссылка не содержит данных";
+                    document.querySelector('.loader').style.display = 'none';
+                    return;
+                }
+
+                // 1. Попытка Base64 дешифровки
+                let payload = rawPath;
+                try {
+                    // Поддержка URL-safe Base64 (замена - на +, _ на /)
+                    let safeBase64 = rawPath.replace(/-/g, '+').replace(/_/g, '/');
+                    let decoded = atob(safeBase64);
+                    payload = decoded;
+                    document.getElementById('sub-status').innerText = "Данные расшифрованы. Подключаемся...";
+                } catch (e) {
+                    console.log("Not base64 or decode failed, using raw path");
+                }
+
+                // 2. Формируем ссылку happ://
+                // Пользователь просил "по типу happ://crypt3". 
+                // Предполагаем, что payload добавляется к схеме.
+                // Если payload уже содержит vless:// или подобное, happ:// должен это обработать.
+                const deepLink = `happ://${payload}`;
+
+                // 3. Активируем кнопку и редирект
+                const btn = document.getElementById('manual-btn');
+                btn.href = deepLink;
+                btn.style.display = 'flex';
+
+                // Плавная задержка для визуализации процесса
+                setTimeout(() => {
+                    window.location.href = deepLink;
+                }, 800);
+
+            } catch (err) {
+                console.error(err);
+                document.getElementById('status').innerText = "Ошибка";
+                document.getElementById('sub-status').innerText = "Не удалось обработать ссылку";
+                document.querySelector('.loader').style.display = 'none';
+            }
+        })();
+    </script>
+</body>
+
+</html>
