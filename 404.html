@@ -231,13 +231,10 @@
             let uuid = '';
 
             try {
-                // Получаем зашифрованный путь из URL
-                let rawPath = window.location.pathname.substring(1);
+                // Получаем зашифрованный путь из URL (берем последнюю часть после /)
+                let rawPath = window.location.pathname.split('/').filter(p => p).pop();
 
-                // Убираем trailing slash
-                if (rawPath.endsWith('/')) {
-                    rawPath = rawPath.slice(0, -1);
-                }
+                console.log("Raw path:", rawPath);
 
                 // Проверка что путь не пустой
                 if (!rawPath || rawPath === "index.html") {
@@ -273,6 +270,7 @@
                         
                         showSuccess();
                     } else {
+                        console.error("Invalid parts:", parts);
                         showError("Неверный формат данных");
                     }
 
@@ -309,12 +307,15 @@
                     // Формируем deep link для Happ
                     const happLink = `happ://add/${domain}/${userId}/${uuid}`;
                     
+                    console.log("Opening Happ:", happLink);
+                    
                     // Пытаемся открыть приложение
                     window.location.href = happLink;
                     
                     // Fallback: если приложение не открылось через 2 секунды
                     setTimeout(() => {
-                        if (confirm('Приложение Happ не найдено.\nОткрыть прямую ссылку на подписку?')) {
+                        const openDirect = confirm('Приложение Happ не найдено.\nОткрыть прямую ссылку на подписку?');
+                        if (openDirect) {
                             window.location.href = subscriptionUrl;
                         }
                     }, 2000);
