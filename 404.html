@@ -106,36 +106,6 @@
             line-height: 1.4;
         }
 
-        .info-card {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 20px;
-            width: 100%;
-            text-align: left;
-            display: none;
-        }
-
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-            font-size: 0.9rem;
-        }
-
-        .info-row:last-child {
-            margin-bottom: 0;
-        }
-
-        .info-label {
-            color: var(--text-muted);
-        }
-
-        .info-value {
-            color: var(--text-main);
-            font-weight: 600;
-        }
-
         .btn {
             display: none;
             width: 100%;
@@ -203,19 +173,8 @@
         <div class="status-msg" id="status">Обработка...</div>
         <div class="sub-msg" id="sub-status">Расшифровываем параметры подключения</div>
 
-        <div class="info-card" id="info-card">
-            <div class="info-row">
-                <span class="info-label">Домен:</span>
-                <span class="info-value" id="domain-info">—</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">User ID:</span>
-                <span class="info-value" id="user-info">—</span>
-            </div>
-        </div>
-
         <button class="btn" id="add-btn">
-            ➕ Добавить подписку
+            🚀 Открыть в Happ
         </button>
         
         <button class="btn btn-secondary" id="copy-btn">
@@ -225,13 +184,10 @@
 
     <script>
         (function () {
-            let subscriptionUrl = '';
-            let domain = '';
-            let userId = '';
-            let uuid = '';
+            let happDeepLink = '';
 
             try {
-                // Получаем зашифрованный путь из URL (берем последнюю часть после /)
+                // Получаем зашифрованные данные из URL
                 let rawPath = window.location.pathname.split('/').filter(p => p).pop();
 
                 console.log("Raw path:", rawPath);
@@ -252,27 +208,17 @@
                         safeBase64 += '=';
                     }
 
-                    // Декодируем Base64
-                    const decrypted = atob(safeBase64);
+                    // Декодируем Base64 - получаем зашифрованные данные от Happ API
+                    const encryptedData = atob(safeBase64);
                     
-                    console.log("Decrypted:", decrypted);
+                    console.log("Encrypted data length:", encryptedData.length);
 
-                    // Ожидаем формат: add/domain/user_id/uuid
-                    const parts = decrypted.split('/');
+                    // Формируем deep link для Happ с зашифрованными данными
+                    happDeepLink = `happ://crypt3/${encryptedData}`;
                     
-                    if (parts.length === 4 && parts[0] === 'add') {
-                        domain = parts[1];
-                        userId = parts[2];
-                        uuid = parts[3];
-
-                        // Формируем полную ссылку на подписку
-                        subscriptionUrl = `https://${domain}/add/${userId}/${uuid}`;
-                        
-                        showSuccess();
-                    } else {
-                        console.error("Invalid parts:", parts);
-                        showError("Неверный формат данных");
-                    }
+                    console.log("Happ deep link ready");
+                    
+                    showSuccess();
 
                 } catch (e) {
                     console.error("Decode error:", e);
@@ -288,13 +234,7 @@
                 document.getElementById('loader').style.display = 'none';
                 document.getElementById('success-icon').style.display = 'block';
                 document.getElementById('status').innerText = 'Подписка готова!';
-                document.getElementById('sub-status').innerText = 'Нажмите кнопку для добавления';
-
-                // Показываем информацию
-                const infoCard = document.getElementById('info-card');
-                document.getElementById('domain-info').innerText = domain;
-                document.getElementById('user-info').innerText = userId;
-                infoCard.style.display = 'block';
+                document.getElementById('sub-status').innerText = 'Нажмите кнопку для добавления в Happ';
 
                 const addBtn = document.getElementById('add-btn');
                 const copyBtn = document.getElementById('copy-btn');
@@ -304,26 +244,15 @@
 
                 // Кнопка добавления - открывает в Happ
                 addBtn.onclick = function() {
-                    // Формируем deep link для Happ
-                    const happLink = `happ://add/${domain}/${userId}/${uuid}`;
+                    console.log("Opening Happ:", happDeepLink.substring(0, 50) + "...");
                     
-                    console.log("Opening Happ:", happLink);
-                    
-                    // Пытаемся открыть приложение
-                    window.location.href = happLink;
-                    
-                    // Fallback: если приложение не открылось через 2 секунды
-                    setTimeout(() => {
-                        const openDirect = confirm('Приложение Happ не найдено.\nОткрыть прямую ссылку на подписку?');
-                        if (openDirect) {
-                            window.location.href = subscriptionUrl;
-                        }
-                    }, 2000);
+                    // Открываем приложение Happ
+                    window.location.href = happDeepLink;
                 };
 
-                // Кнопка копирования
+                // Кнопка копирования deep link
                 copyBtn.onclick = function() {
-                    navigator.clipboard.writeText(subscriptionUrl).then(() => {
+                    navigator.clipboard.writeText(happDeepLink).then(() => {
                         copyBtn.innerHTML = '✅ Скопировано!';
                         setTimeout(() => {
                             copyBtn.innerHTML = '📋 Скопировать ссылку';
@@ -331,7 +260,7 @@
                     }).catch(() => {
                         // Fallback для старых браузеров
                         const textarea = document.createElement('textarea');
-                        textarea.value = subscriptionUrl;
+                        textarea.value = happDeepLink;
                         textarea.style.position = 'fixed';
                         textarea.style.opacity = '0';
                         document.body.appendChild(textarea);
