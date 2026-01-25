@@ -184,64 +184,96 @@
                 // Получаем путь из URL (убираем первый слэш)
                 let rawPath = window.location.pathname.substring(1);
 
+                // Убираем название репозитория если есть (например cloud/)
+                const pathParts = rawPath.split('/');
+                if (pathParts.length > 1) {
+                    // Берем последнюю часть - это и есть зашифрованные данные
+                    rawPath = pathParts[pathParts.length - 1];
+                }
+
                 // Убираем возможный trailing slash
                 if (rawPath.endsWith('/')) {
                     rawPath = rawPath.slice(0, -1);
                 }
 
-                // Иногда на GitHub Pages путь может быть пустым или index.html
                 if (!rawPath || rawPath === "index.html") {
+                    document.getElementById('status').innerText = "Ошибка";
+                    document.getElementById('sub-status').innerText = "Некорректная ссылка";
+                    document.querySelector('.loader').style.display = 'none';
                     return;
                 }
 
-                let payload = rawPath;
+                console.log("Raw path:", rawPath);
+
+                let decryptedUrl = null;
 
                 try {
                     // URL-safe Base64: заменяем - на +, _ на /
                     let safeBase64 = rawPath.replace(/-/g, '+').replace(/_/g, '/');
 
-                    // Добавляем padding если нужно (Base64 должен быть кратен 4)
+                    // Добавляем padding если нужно
                     while (safeBase64.length % 4 !== 0) {
                         safeBase64 += '=';
                     }
 
                     // Декодируем Base64
                     let decoded = atob(safeBase64);
+                    console.log("Decoded Base64:", decoded);
 
-                    // Проверяем что получилось что-то похожее на add/domain/user/uuid
-                    if (decoded.includes("add/")) {
-                        payload = decoded;
+                    // Проверяем, является ли это уже готовой ссылкой
+                    if (decoded.startsWith("https://") || decoded.startsWith("http://")) {
+                        decryptedUrl = decoded;
                         document.getElementById('sub-status').innerText = "Данные расшифрованы. Подключаемся...";
                     } else {
-                        // Fallback
-                        payload = rawPath;
-                        document.getElementById('sub-status').innerText = "Подключаемся...";
+                        // Если это не ссылка, возможно это дополнительно зашифрованные данные
+                        // В этом случае нужен ключ расшифровки с сервера
+                        console.log("Not a direct URL, encrypted data detected");
+                        document.getElementById('status').innerText = "Ошибка";
+                        document.getElementById('sub-status').innerText = "Требуется ключ расшифровки. Обратитесь к администратору.";
+                        document.querySelector('.loader').style.display = 'none';
+                        return;
                     }
                 } catch (e) {
-                    console.log("Decode failed:", e);
-                    // Используем как есть
-                    payload = rawPath;
-                    document.getElementById('sub-status').innerText = "Подключаемся...";
+                    console.error("Decode failed:", e);
+                    document.getElementById('status').innerText = "Ошибка";
+                    document.getElementById('sub-status').innerText = "Не удалось расшифровать данные";
+                    document.querySelector('.loader').style.display = 'none';
+                    return;
                 }
+
+                if (!decryptedUrl) {
+                    document.getElementById('status').innerText = "Ошибка";
+                    document.getElementById('sub-status').innerText = "Не удалось получить ссылку";
+                    document.querySelector('.loader').style.display = 'none';
+                    return;
+                }
+
+                console.log("Final URL:", decryptedUrl);
+
+                // Извлекаем параметры из расшифрованного URL
+                // Формат: https://domain/add/user_id/sub_uuid
+                let payload = decryptedUrl.replace(/^https?:\/\//, '');
 
                 // Формируем ссылку happ://
                 const deepLink = `happ://${payload}`;
 
-                // Активируем кнопку и редирект
+                console.log("Deep link:", deepLink);
+
+                // Активируем кнопку
                 const btn = document.getElementById('manual-btn');
                 btn.href = deepLink;
                 btn.style.display = 'flex';
 
-                // Мгновенный редирект БЕЗ ожидания
+                // Мгновенный редирект
                 window.location.replace(deepLink);
 
-                // Запасной запуск через 50мс
+                // Запасной запуск
                 setTimeout(() => {
                     window.location.href = deepLink;
                 }, 50);
 
             } catch (err) {
-                console.error(err);
+                console.error("Main error:", err);
                 document.getElementById('status').innerText = "Ошибка";
                 document.getElementById('sub-status').innerText = "Не удалось обработать ссылку";
                 document.querySelector('.loader').style.display = 'none';
