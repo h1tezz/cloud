@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cloude VPN | Добавить подписку</title>
+    <title>Cloude VPN | Redirect</title>
     <style>
         :root {
             --primary: #00f2fe;
@@ -19,7 +20,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
 
         body {
@@ -27,14 +28,17 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            /* Используем min-height для мобилок */
             flex-direction: column;
             text-align: center;
             background-color: var(--bg-dark);
             color: var(--text-main);
             overflow: hidden;
+            margin: 0;
             position: relative;
         }
 
+        /* Background Effects */
         .bg-glow {
             position: fixed;
             width: 600px;
@@ -57,8 +61,13 @@
         }
 
         @keyframes pulse {
-            0% { transform: scale(1); }
-            100% { transform: scale(1.2); }
+            0% {
+                transform: scale(1);
+            }
+
+            100% {
+                transform: scale(1.2);
+            }
         }
 
         .loader {
@@ -73,7 +82,9 @@
         }
 
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         .status-container {
@@ -86,9 +97,12 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+
+            /* Responsive Width */
             width: 90%;
-            max-width: 450px;
+            max-width: 400px;
             margin: 20px;
+            /* Отступы от краев на мобилках */
         }
 
         .status-msg {
@@ -106,13 +120,13 @@
             line-height: 1.4;
         }
 
-        .btn {
+        #manual-btn {
             display: none;
             width: 100%;
             justify-content: center;
             padding: 15px 20px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
+            background: white;
+            color: black;
             font-weight: 700;
             border-radius: 12px;
             text-decoration: none;
@@ -120,169 +134,103 @@
             align-items: center;
             gap: 10px;
             font-size: 1rem;
-            border: none;
-            cursor: pointer;
-            margin-top: 10px;
         }
 
-        .btn:hover {
+        #manual-btn:hover {
             transform: translateY(-3px);
-            box-shadow: 0 15px 30px rgba(0, 242, 254, 0.3);
+            box-shadow: 0 15px 30px rgba(255, 255, 255, 0.15);
         }
 
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.1);
-            color: var(--text-main);
-        }
-
-        .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.15);
-            box-shadow: 0 10px 20px rgba(255, 255, 255, 0.1);
-        }
-
-        .success-icon {
-            font-size: 3rem;
-            margin-bottom: 20px;
-            display: none;
-        }
-
-        .error-icon {
-            font-size: 3rem;
-            margin-bottom: 20px;
-            display: none;
-        }
-
+        /* Mobile Optimizations */
         @media (max-width: 480px) {
-            .bg-glow { opacity: 0.4; }
-            .status-container { padding: 30px 20px; }
-            .loader { width: 50px; height: 50px; margin-bottom: 25px; }
-            .status-msg { font-size: 1.3rem; }
-            .sub-msg { font-size: 0.9rem; }
+            .bg-glow {
+                opacity: 0.4;
+                /* Чуть меньше свечения на мобилках */
+            }
+
+            .status-container {
+                padding: 30px 20px;
+            }
+
+            .loader {
+                width: 50px;
+                height: 50px;
+                margin-bottom: 25px;
+            }
+
+            .status-msg {
+                font-size: 1.3rem;
+            }
+
+            .sub-msg {
+                font-size: 0.9rem;
+            }
         }
     </style>
 </head>
+
 <body>
     <div class="bg-glow"></div>
     <div class="bg-glow"></div>
 
     <div class="status-container">
-        <div class="loader" id="loader"></div>
-        <div class="success-icon" id="success-icon">✅</div>
-        <div class="error-icon" id="error-icon">❌</div>
-        
+        <div class="loader"></div>
         <div class="status-msg" id="status">Обработка...</div>
         <div class="sub-msg" id="sub-status">Расшифровываем параметры подключения</div>
 
-        <button class="btn" id="add-btn">
+        <a href="#" class="cta-primary" id="manual-btn">
             🚀 Открыть в Happ
-        </button>
-        
-        <button class="btn btn-secondary" id="copy-btn">
-            📋 Скопировать ссылку
-        </button>
+        </a>
     </div>
 
     <script>
         (function () {
-            let happDeepLink = '';
-
             try {
-                // Получаем зашифрованные данные из URL
-                let rawPath = window.location.pathname.split('/').filter(p => p).pop();
+                // Извлекаем последнюю часть пути (игнорируем папки репозитория)
+                const parts = window.location.pathname.split('/').filter(p => p && p !== "index.html");
+                if (parts.length === 0) return;
 
-                console.log("Raw path:", rawPath);
+                let rawPath = parts[parts.length - 1];
+                let payload = rawPath;
 
-                // Проверка что путь не пустой
-                if (!rawPath || rawPath === "index.html") {
-                    showError("Ссылка не содержит данных подписки");
-                    return;
-                }
-
-                // Расшифровка URL-safe Base64
                 try {
-                    // Заменяем обратно URL-safe символы
-                    let safeBase64 = rawPath.replace(/-/g, '+').replace(/_/g, '/');
-
-                    // Добавляем padding
-                    while (safeBase64.length % 4 !== 0) {
-                        safeBase64 += '=';
-                    }
-
-                    // Декодируем Base64 - получаем зашифрованные данные от Happ API
-                    const encryptedData = atob(safeBase64);
-                    
-                    console.log("Encrypted data length:", encryptedData.length);
-
-                    // Формируем deep link для Happ с зашифрованными данными
-                    happDeepLink = `happ://crypt3/${encryptedData}`;
-                    
-                    console.log("Happ deep link ready");
-                    
-                    showSuccess();
-
+                    // URL-safe Base64 decode
+                    let b64 = rawPath.replace(/-/g, '+').replace(/_/g, '/');
+                    while (b64.length % 4 !== 0) b64 += '=';
+                    let decoded = atob(b64);
+                    if (decoded.includes("add/")) payload = decoded;
                 } catch (e) {
-                    console.error("Decode error:", e);
-                    showError("Не удалось расшифровать ссылку");
+                    console.log("Not base64 or manual path");
                 }
+
+                const deepLink = `happ://${payload}`;
+
+                // 1. Попытка мгновенного редиректа
+                window.location.replace(deepLink);
+
+                // 2. Повторная попытка через мизерную паузу (для обхода блокировок некоторых браузеров)
+                setTimeout(() => {
+                    window.location.href = deepLink;
+                    document.getElementById('sub-status').innerText = "Открываем приложение...";
+                }, 10);
+
+                // 3. Только если через 2 секунды мы все еще здесь - показываем кнопку
+                setTimeout(() => {
+                    const btn = document.getElementById('manual-btn');
+                    btn.href = deepLink;
+                    btn.style.display = 'flex';
+                    document.getElementById('status').innerText = "Нужно подтверждение";
+                    document.getElementById('sub-status').innerText = "Нажмите на кнопку ниже для перехода";
+                    document.querySelector('.loader').style.display = 'none';
+                }, 2000);
 
             } catch (err) {
                 console.error(err);
-                showError("Произошла ошибка при обработке");
-            }
-
-            function showSuccess() {
-                document.getElementById('loader').style.display = 'none';
-                document.getElementById('success-icon').style.display = 'block';
-                document.getElementById('status').innerText = 'Подписка готова!';
-                document.getElementById('sub-status').innerText = 'Нажмите кнопку для добавления в Happ';
-
-                const addBtn = document.getElementById('add-btn');
-                const copyBtn = document.getElementById('copy-btn');
-
-                addBtn.style.display = 'flex';
-                copyBtn.style.display = 'flex';
-
-                // Кнопка добавления - открывает в Happ
-                addBtn.onclick = function() {
-                    console.log("Opening Happ:", happDeepLink.substring(0, 50) + "...");
-                    
-                    // Открываем приложение Happ
-                    window.location.href = happDeepLink;
-                };
-
-                // Кнопка копирования deep link
-                copyBtn.onclick = function() {
-                    navigator.clipboard.writeText(happDeepLink).then(() => {
-                        copyBtn.innerHTML = '✅ Скопировано!';
-                        setTimeout(() => {
-                            copyBtn.innerHTML = '📋 Скопировать ссылку';
-                        }, 2000);
-                    }).catch(() => {
-                        // Fallback для старых браузеров
-                        const textarea = document.createElement('textarea');
-                        textarea.value = happDeepLink;
-                        textarea.style.position = 'fixed';
-                        textarea.style.opacity = '0';
-                        document.body.appendChild(textarea);
-                        textarea.select();
-                        document.execCommand('copy');
-                        document.body.removeChild(textarea);
-                        
-                        copyBtn.innerHTML = '✅ Скопировано!';
-                        setTimeout(() => {
-                            copyBtn.innerHTML = '📋 Скопировать ссылку';
-                        }, 2000);
-                    });
-                };
-            }
-
-            function showError(message) {
-                document.getElementById('loader').style.display = 'none';
-                document.getElementById('error-icon').style.display = 'block';
-                document.getElementById('status').innerText = 'Ошибка';
-                document.getElementById('sub-status').innerText = message;
+                document.getElementById('status').innerText = "Ошибка";
+                document.getElementById('sub-status').innerText = "Не удалось обработать ссылку";
             }
         })();
     </script>
 </body>
+
 </html>
