@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="ru">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -20,7 +19,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
 
         body {
@@ -28,17 +27,14 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            /* Используем min-height для мобилок */
             flex-direction: column;
             text-align: center;
             background-color: var(--bg-dark);
             color: var(--text-main);
             overflow: hidden;
-            margin: 0;
             position: relative;
         }
 
-        /* Background Effects */
         .bg-glow {
             position: fixed;
             width: 600px;
@@ -61,13 +57,8 @@
         }
 
         @keyframes pulse {
-            0% {
-                transform: scale(1);
-            }
-
-            100% {
-                transform: scale(1.2);
-            }
+            0% { transform: scale(1); }
+            100% { transform: scale(1.2); }
         }
 
         .loader {
@@ -82,9 +73,7 @@
         }
 
         @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
+            to { transform: rotate(360deg); }
         }
 
         .status-container {
@@ -97,12 +86,9 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-
-            /* Responsive Width */
             width: 90%;
             max-width: 400px;
             margin: 20px;
-            /* Отступы от краев на мобилках */
         }
 
         .status-msg {
@@ -141,34 +127,15 @@
             box-shadow: 0 15px 30px rgba(255, 255, 255, 0.15);
         }
 
-        /* Mobile Optimizations */
         @media (max-width: 480px) {
-            .bg-glow {
-                opacity: 0.4;
-                /* Чуть меньше свечения на мобилках */
-            }
-
-            .status-container {
-                padding: 30px 20px;
-            }
-
-            .loader {
-                width: 50px;
-                height: 50px;
-                margin-bottom: 25px;
-            }
-
-            .status-msg {
-                font-size: 1.3rem;
-            }
-
-            .sub-msg {
-                font-size: 0.9rem;
-            }
+            .bg-glow { opacity: 0.4; }
+            .status-container { padding: 30px 20px; }
+            .loader { width: 50px; height: 50px; margin-bottom: 25px; }
+            .status-msg { font-size: 1.3rem; }
+            .sub-msg { font-size: 0.9rem; }
         }
     </style>
 </head>
-
 <body>
     <div class="bg-glow"></div>
     <div class="bg-glow"></div>
@@ -178,7 +145,7 @@
         <div class="status-msg" id="status">Обработка...</div>
         <div class="sub-msg" id="sub-status">Расшифровываем параметры подключения</div>
 
-        <a href="#" class="cta-primary" id="manual-btn">
+        <a href="#" id="manual-btn">
             🚀 Открыть в Happ
         </a>
     </div>
@@ -186,70 +153,69 @@
     <script>
         (function () {
             try {
-                // Получаем путь из URL (убираем первый слэш)
-                let rawPath = window.location.pathname.substring(1);
+                // Получаем зашифрованные данные из URL
+                let rawPath = window.location.pathname.split('/').filter(p => p).pop();
 
-                // Убираем возможный trailing slash
-                if (rawPath.endsWith('/')) {
-                    rawPath = rawPath.slice(0, -1);
-                }
+                console.log("Raw path:", rawPath);
 
-                // Иногда на GitHub Pages путь может быть пустым или index.html
+                // Проверка что путь не пустой
                 if (!rawPath || rawPath === "index.html") {
+                    document.getElementById('status').innerText = "Ошибка";
+                    document.getElementById('sub-status').innerText = "Ссылка не содержит данных подписки";
+                    document.querySelector('.loader').style.display = 'none';
                     return;
                 }
 
-                let payload = rawPath;
-
+                // Расшифровка URL-safe Base64
                 try {
-                    // URL-safe Base64: заменяем - на +, _ на /
+                    // Заменяем обратно URL-safe символы
                     let safeBase64 = rawPath.replace(/-/g, '+').replace(/_/g, '/');
 
-                    // Добавляем padding если нужно (Base64 должен быть кратен 4)
+                    // Добавляем padding
                     while (safeBase64.length % 4 !== 0) {
                         safeBase64 += '=';
                     }
 
-                    // Декодируем Base64
-                    let decoded = atob(safeBase64);
+                    // Декодируем Base64 - получаем зашифрованные данные от Happ API
+                    const encryptedData = atob(safeBase64);
+                    
+                    console.log("Encrypted data length:", encryptedData.length);
 
-                    // Проверяем что получилось что-то похожее на add/domain/user/uuid
-                    if (decoded.includes("add/")) {
-                        payload = decoded;
-                        document.getElementById('sub-status').innerText = "Данные расшифрованы. Подключаемся...";
-                    } else {
-                        // Fallback
-                        payload = rawPath;
-                        document.getElementById('sub-status').innerText = "Подключаемся...";
-                    }
+                    // Формируем deep link для Happ с зашифрованными данными
+                    const happDeepLink = `happ://crypt3/${encryptedData}`;
+                    
+                    console.log("Happ deep link ready");
+                    
+                    // Обновляем статус
+                    document.getElementById('sub-status').innerText = "Данные расшифрованы. Подключаемся...";
+
+                    // Активируем кнопку (как fallback)
+                    const btn = document.getElementById('manual-btn');
+                    btn.href = happDeepLink;
+                    btn.style.display = 'flex';
+
+                    // Мгновенный редирект
+                    window.location.replace(happDeepLink);
+
+                    // Запасной запуск через 50мс
+                    setTimeout(() => {
+                        window.location.href = happDeepLink;
+                    }, 50);
+
                 } catch (e) {
-                    console.log("Decode failed:", e);
-                    // Используем как есть
-                    payload = rawPath;
-                    document.getElementById('sub-status').innerText = "Подключаемся...";
+                    console.error("Decode error:", e);
+                    document.getElementById('status').innerText = "Ошибка";
+                    document.getElementById('sub-status').innerText = "Не удалось расшифровать ссылку";
+                    document.querySelector('.loader').style.display = 'none';
                 }
-
-                // Формируем ссылку happ://
-                const deepLink = `happ://${payload}`;
-
-                // Активируем кнопку и редирект
-                const btn = document.getElementById('manual-btn');
-                btn.href = deepLink;
-                btn.style.display = 'flex';
-
-                // Плавная задержка
-                setTimeout(() => {
-                    window.location.href = deepLink;
-                }, 800);
 
             } catch (err) {
                 console.error(err);
                 document.getElementById('status').innerText = "Ошибка";
-                document.getElementById('sub-status').innerText = "Не удалось обработать ссылку";
+                document.getElementById('sub-status').innerText = "Произошла ошибка при обработке";
                 document.querySelector('.loader').style.display = 'none';
             }
         })();
     </script>
 </body>
-
 </html>
