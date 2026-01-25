@@ -28,6 +28,7 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            /* Используем min-height для мобилок */
             flex-direction: column;
             text-align: center;
             background-color: var(--bg-dark);
@@ -96,9 +97,12 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+
+            /* Responsive Width */
             width: 90%;
             max-width: 400px;
             margin: 20px;
+            /* Отступы от краев на мобилках */
         }
 
         .status-msg {
@@ -141,6 +145,7 @@
         @media (max-width: 480px) {
             .bg-glow {
                 opacity: 0.4;
+                /* Чуть меньше свечения на мобилках */
             }
 
             .status-container {
@@ -184,96 +189,61 @@
                 // Получаем путь из URL (убираем первый слэш)
                 let rawPath = window.location.pathname.substring(1);
 
-                // Убираем название репозитория если есть (например cloud/)
-                const pathParts = rawPath.split('/');
-                if (pathParts.length > 1) {
-                    // Берем последнюю часть - это и есть зашифрованные данные
-                    rawPath = pathParts[pathParts.length - 1];
-                }
-
                 // Убираем возможный trailing slash
                 if (rawPath.endsWith('/')) {
                     rawPath = rawPath.slice(0, -1);
                 }
 
+                // Иногда на GitHub Pages путь может быть пустым или index.html
                 if (!rawPath || rawPath === "index.html") {
-                    document.getElementById('status').innerText = "Ошибка";
-                    document.getElementById('sub-status').innerText = "Некорректная ссылка";
-                    document.querySelector('.loader').style.display = 'none';
                     return;
                 }
 
-                console.log("Raw path:", rawPath);
-
-                let decryptedUrl = null;
+                let payload = rawPath;
 
                 try {
                     // URL-safe Base64: заменяем - на +, _ на /
                     let safeBase64 = rawPath.replace(/-/g, '+').replace(/_/g, '/');
 
-                    // Добавляем padding если нужно
+                    // Добавляем padding если нужно (Base64 должен быть кратен 4)
                     while (safeBase64.length % 4 !== 0) {
                         safeBase64 += '=';
                     }
 
                     // Декодируем Base64
                     let decoded = atob(safeBase64);
-                    console.log("Decoded Base64:", decoded);
 
-                    // Проверяем, является ли это уже готовой ссылкой
-                    if (decoded.startsWith("https://") || decoded.startsWith("http://")) {
-                        decryptedUrl = decoded;
+                    // Проверяем что получилось что-то похожее на add/domain/user/uuid
+                    if (decoded.includes("add/")) {
+                        payload = decoded;
                         document.getElementById('sub-status').innerText = "Данные расшифрованы. Подключаемся...";
                     } else {
-                        // Если это не ссылка, возможно это дополнительно зашифрованные данные
-                        // В этом случае нужен ключ расшифровки с сервера
-                        console.log("Not a direct URL, encrypted data detected");
-                        document.getElementById('status').innerText = "Ошибка";
-                        document.getElementById('sub-status').innerText = "Требуется ключ расшифровки. Обратитесь к администратору.";
-                        document.querySelector('.loader').style.display = 'none';
-                        return;
+                        // Fallback
+                        payload = rawPath;
+                        document.getElementById('sub-status').innerText = "Подключаемся...";
                     }
                 } catch (e) {
-                    console.error("Decode failed:", e);
-                    document.getElementById('status').innerText = "Ошибка";
-                    document.getElementById('sub-status').innerText = "Не удалось расшифровать данные";
-                    document.querySelector('.loader').style.display = 'none';
-                    return;
+                    console.log("Decode failed:", e);
+                    // Используем как есть
+                    payload = rawPath;
+                    document.getElementById('sub-status').innerText = "Подключаемся...";
                 }
-
-                if (!decryptedUrl) {
-                    document.getElementById('status').innerText = "Ошибка";
-                    document.getElementById('sub-status').innerText = "Не удалось получить ссылку";
-                    document.querySelector('.loader').style.display = 'none';
-                    return;
-                }
-
-                console.log("Final URL:", decryptedUrl);
-
-                // Извлекаем параметры из расшифрованного URL
-                // Формат: https://domain/add/user_id/sub_uuid
-                let payload = decryptedUrl.replace(/^https?:\/\//, '');
 
                 // Формируем ссылку happ://
                 const deepLink = `happ://${payload}`;
 
-                console.log("Deep link:", deepLink);
-
-                // Активируем кнопку
+                // Активируем кнопку и редирект
                 const btn = document.getElementById('manual-btn');
                 btn.href = deepLink;
                 btn.style.display = 'flex';
 
-                // Мгновенный редирект
-                window.location.replace(deepLink);
-
-                // Запасной запуск
+                // Плавная задержка
                 setTimeout(() => {
                     window.location.href = deepLink;
-                }, 50);
+                }, 800);
 
             } catch (err) {
-                console.error("Main error:", err);
+                console.error(err);
                 document.getElementById('status').innerText = "Ошибка";
                 document.getElementById('sub-status').innerText = "Не удалось обработать ссылку";
                 document.querySelector('.loader').style.display = 'none';
