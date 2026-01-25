@@ -186,43 +186,49 @@
     <script>
         (function () {
             try {
-                // Извлекаем последнюю часть пути (игнорируем папки репозитория)
-                const parts = window.location.pathname.split('/').filter(p => p && p !== "index.html");
-                if (parts.length === 0) return;
+                // Получаем путь из URL (убираем первый слэш)
+                let rawPath = window.location.pathname.substring(1);
 
-                let rawPath = parts[parts.length - 1];
+                // Убираем возможный trailing slash
+                if (rawPath.endsWith('/')) {
+                    rawPath = rawPath.slice(0, -1);
+                }
+
+                if (!rawPath || rawPath === "index.html") return;
+
                 let payload = rawPath;
 
                 try {
-                    // URL-safe Base64 decode
-                    let b64 = rawPath.replace(/-/g, '+').replace(/_/g, '/');
-                    while (b64.length % 4 !== 0) b64 += '=';
-                    let decoded = atob(b64);
-                    if (decoded.includes("add/")) payload = decoded;
+                    // URL-safe Base64: заменяем - на +, _ на /
+                    let safeBase64 = rawPath.replace(/-/g, '+').replace(/_/g, '/');
+                    while (safeBase64.length % 4 !== 0) safeBase64 += '=';
+
+                    // Декодируем Base64
+                    let decoded = atob(safeBase64);
+
+                    if (decoded.includes("add/")) {
+                        payload = decoded;
+                        document.getElementById('sub-status').innerText = "Данные расшифрованы. Подключаемся...";
+                    }
                 } catch (e) {
-                    console.log("Not base64 or manual path");
+                    console.log("Decode failed, using raw path");
                 }
 
+                // Формируем ссылку happ://
                 const deepLink = `happ://${payload}`;
 
-                // 1. Попытка мгновенного редиректа
+                // Активируем кнопку (как fallback)
+                const btn = document.getElementById('manual-btn');
+                btn.href = deepLink;
+                btn.style.display = 'flex';
+
+                // Мгновенный редирект БЕЗ ожидания
                 window.location.replace(deepLink);
 
-                // 2. Повторная попытка через мизерную паузу (для обхода блокировок некоторых браузеров)
+                // Запасной запуск через 50мс
                 setTimeout(() => {
                     window.location.href = deepLink;
-                    document.getElementById('sub-status').innerText = "Открываем приложение...";
-                }, 10);
-
-                // 3. Только если через 2 секунды мы все еще здесь - показываем кнопку
-                setTimeout(() => {
-                    const btn = document.getElementById('manual-btn');
-                    btn.href = deepLink;
-                    btn.style.display = 'flex';
-                    document.getElementById('status').innerText = "Нужно подтверждение";
-                    document.getElementById('sub-status').innerText = "Нажмите на кнопку ниже для перехода";
-                    document.querySelector('.loader').style.display = 'none';
-                }, 2000);
+                }, 50);
 
             } catch (err) {
                 console.error(err);
