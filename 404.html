@@ -28,7 +28,6 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            /* Используем min-height для мобилок */
             flex-direction: column;
             text-align: center;
             background-color: var(--bg-dark);
@@ -97,12 +96,9 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-
-            /* Responsive Width */
             width: 90%;
             max-width: 400px;
             margin: 20px;
-            /* Отступы от краев на мобилках */
         }
 
         .status-msg {
@@ -145,7 +141,6 @@
         @media (max-width: 480px) {
             .bg-glow {
                 opacity: 0.4;
-                /* Чуть меньше свечения на мобилках */
             }
 
             .status-container {
@@ -194,30 +189,45 @@
                     rawPath = rawPath.slice(0, -1);
                 }
 
-                if (!rawPath || rawPath === "index.html") return;
+                // Иногда на GitHub Pages путь может быть пустым или index.html
+                if (!rawPath || rawPath === "index.html") {
+                    return;
+                }
 
                 let payload = rawPath;
 
                 try {
                     // URL-safe Base64: заменяем - на +, _ на /
                     let safeBase64 = rawPath.replace(/-/g, '+').replace(/_/g, '/');
-                    while (safeBase64.length % 4 !== 0) safeBase64 += '=';
+
+                    // Добавляем padding если нужно (Base64 должен быть кратен 4)
+                    while (safeBase64.length % 4 !== 0) {
+                        safeBase64 += '=';
+                    }
 
                     // Декодируем Base64
                     let decoded = atob(safeBase64);
 
+                    // Проверяем что получилось что-то похожее на add/domain/user/uuid
                     if (decoded.includes("add/")) {
                         payload = decoded;
                         document.getElementById('sub-status').innerText = "Данные расшифрованы. Подключаемся...";
+                    } else {
+                        // Fallback
+                        payload = rawPath;
+                        document.getElementById('sub-status').innerText = "Подключаемся...";
                     }
                 } catch (e) {
-                    console.log("Decode failed, using raw path");
+                    console.log("Decode failed:", e);
+                    // Используем как есть
+                    payload = rawPath;
+                    document.getElementById('sub-status').innerText = "Подключаемся...";
                 }
 
                 // Формируем ссылку happ://
                 const deepLink = `happ://${payload}`;
 
-                // Активируем кнопку (как fallback)
+                // Активируем кнопку и редирект
                 const btn = document.getElementById('manual-btn');
                 btn.href = deepLink;
                 btn.style.display = 'flex';
@@ -234,6 +244,7 @@
                 console.error(err);
                 document.getElementById('status').innerText = "Ошибка";
                 document.getElementById('sub-status').innerText = "Не удалось обработать ссылку";
+                document.querySelector('.loader').style.display = 'none';
             }
         })();
     </script>
