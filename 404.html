@@ -207,6 +207,9 @@
                     // Декодируем Base64
                     let decoded = atob(safeBase64);
 
+                    // Декодируем URL-encoding если есть (например %C3%B6)
+                    decoded = decodeURIComponent(decoded);
+
                     // Проверяем что это
                     if (decoded.startsWith('happ://crypt')) {
                         // Это уже готовая happ:// ссылка (crypt5/crypt3)
