@@ -28,7 +28,6 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            /* Используем min-height для мобилок */
             flex-direction: column;
             text-align: center;
             background-color: var(--bg-dark);
@@ -38,7 +37,6 @@
             position: relative;
         }
 
-        /* Background Effects */
         .bg-glow {
             position: fixed;
             width: 600px;
@@ -61,13 +59,8 @@
         }
 
         @keyframes pulse {
-            0% {
-                transform: scale(1);
-            }
-
-            100% {
-                transform: scale(1.2);
-            }
+            0% { transform: scale(1); }
+            100% { transform: scale(1.2); }
         }
 
         .loader {
@@ -82,9 +75,7 @@
         }
 
         @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
+            to { transform: rotate(360deg); }
         }
 
         .status-container {
@@ -97,12 +88,9 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-
-            /* Responsive Width */
             width: 90%;
             max-width: 400px;
             margin: 20px;
-            /* Отступы от краев на мобилках */
         }
 
         .status-msg {
@@ -141,30 +129,12 @@
             box-shadow: 0 15px 30px rgba(255, 255, 255, 0.15);
         }
 
-        /* Mobile Optimizations */
         @media (max-width: 480px) {
-            .bg-glow {
-                opacity: 0.4;
-                /* Чуть меньше свечения на мобилках */
-            }
-
-            .status-container {
-                padding: 30px 20px;
-            }
-
-            .loader {
-                width: 50px;
-                height: 50px;
-                margin-bottom: 25px;
-            }
-
-            .status-msg {
-                font-size: 1.3rem;
-            }
-
-            .sub-msg {
-                font-size: 0.9rem;
-            }
+            .bg-glow { opacity: 0.4; }
+            .status-container { padding: 30px 20px; }
+            .loader { width: 50px; height: 50px; margin-bottom: 25px; }
+            .status-msg { font-size: 1.3rem; }
+            .sub-msg { font-size: 0.9rem; }
         }
     </style>
 </head>
@@ -177,7 +147,6 @@
         <div class="loader"></div>
         <div class="status-msg" id="status">Обработка...</div>
         <div class="sub-msg" id="sub-status">Расшифровываем параметры подключения</div>
-        <div class="sub-msg" id="device-info" style="margin-top: 15px; font-size: 0.85rem; color: var(--primary);"></div>
 
         <a href="#" class="cta-primary" id="manual-btn">
             🚀 Открыть в Happ
@@ -187,72 +156,55 @@
     <script>
         (function () {
             try {
-                // Получаем путь из URL (убираем первый слэш)
                 let rawPath = window.location.pathname.substring(1);
 
-                // Убираем возможный trailing slash
-                if (rawPath.endsWith('/')) {
-                    rawPath = rawPath.slice(0, -1);
-                }
+                // Убираем папку если есть (например "cloud/")
+                // Берем последний сегмент пути
+                const parts = rawPath.split('/');
+                const encoded = parts[parts.length - 1];
 
-                if (!rawPath || rawPath === "index.html") return;
+                if (!encoded || encoded === "index.html" || encoded === "404.html") return;
 
-                let payload = rawPath;
+                // Декодируем urlsafe base64
+                // urlsafe: - -> +, _ -> /
+                let safeBase64 = encoded.replace(/-/g, '+').replace(/_/g, '/');
+                while (safeBase64.length % 4 !== 0) safeBase64 += '=';
 
+                let decoded;
                 try {
-                    // URL-safe Base64: заменяем - на +, _ на /
-                    let safeBase64 = rawPath.replace(/-/g, '+').replace(/_/g, '/');
-                    while (safeBase64.length % 4 !== 0) safeBase64 += '=';
-
-                    // Декодируем Base64
-                    let decoded = atob(safeBase64);
-
-                    // Проверяем что это
-                    if (decoded.startsWith('happ://crypt')) {
-                        // Это уже готовая happ:// ссылка (crypt5/crypt3)
-                        payload = decoded.replace('happ://', '');
-                        document.getElementById('sub-status').innerText = "Зашифрованные данные. Открываем Happ...";
-                    } else if (decoded.startsWith('crypt')) {
-                        // Это crypt5/... или crypt3/... без префикса happ://
-                        payload = decoded;
-                        document.getElementById('sub-status').innerText = "Зашифрованные данные. Открываем Happ...";
-                    } else if (decoded.includes("add/")) {
-                        // Это прямой URL, создаём happ://add/...
-                        payload = decoded;
-                        document.getElementById('sub-status').innerText = "Данные расшифрованы. Подключаемся...";
-                    } else {
-                        // Неизвестный формат, предполагаем что это crypt5 данные
-                        payload = decoded;
-                        document.getElementById('sub-status').innerText = "Зашифрованные данные. Открываем Happ...";
-                    }
+                    decoded = atob(safeBase64);
                 } catch (e) {
-                    console.log("Decode failed, using raw path");
+                    console.log("atob failed:", e);
+                    return;
                 }
 
-                // Формируем ссылку happ://
-                // Проверяем, начинается ли payload с crypt
+                // decoded должен быть "crypt5/ltvk..."
                 let deepLink;
-                if (payload.startsWith('crypt')) {
-                    deepLink = `happ://${payload}`;
-                } else if (payload.includes('add/')) {
-                    deepLink = `happ://${payload}`;
+                if (decoded.startsWith('crypt5/') || decoded.startsWith('crypt3/')) {
+                    // Правильный формат — просто добавляем happ://
+                    // НО: данные после декодирования могут содержать символы которые надо правильно передать
+                    // Разбиваем на префикс и данные
+                    const slashIdx = decoded.indexOf('/');
+                    const prefix = decoded.substring(0, slashIdx); // "crypt5"
+                    const data = decoded.substring(slashIdx + 1);   // "ltvk..."
+                    
+                    // encodeURIComponent портит base64 символы +, /, =
+                    // Используем encodeURI который не трогает эти символы
+                    deepLink = 'happ://' + prefix + '/' + data;
+                    document.getElementById('sub-status').innerText = "Данные расшифрованы. Открываем Happ...";
+                } else if (decoded.includes('add/')) {
+                    deepLink = 'happ://' + decoded;
+                    document.getElementById('sub-status').innerText = "Данные расшифрованы. Подключаемся...";
                 } else {
-                    // Предполагаем что это crypt5 данные
-                    deepLink = `happ://crypt5/${payload}`;
+                    deepLink = 'happ://' + decoded;
                 }
 
-                // Активируем кнопку (как fallback)
                 const btn = document.getElementById('manual-btn');
                 btn.href = deepLink;
                 btn.style.display = 'flex';
 
-                // Мгновенный редирект БЕЗ ожидания
                 window.location.replace(deepLink);
-
-                // Запасной запуск через 50мс
-                setTimeout(() => {
-                    window.location.href = deepLink;
-                }, 50);
+                setTimeout(() => { window.location.href = deepLink; }, 50);
 
             } catch (err) {
                 console.error(err);
