@@ -122,6 +122,8 @@
             align-items: center;
             gap: 10px;
             font-size: 1rem;
+            cursor: pointer;
+            border: none;
         }
 
         #manual-btn:hover {
@@ -148,68 +150,93 @@
         <div class="status-msg" id="status">Обработка...</div>
         <div class="sub-msg" id="sub-status">Расшифровываем параметры подключения</div>
 
-        <a href="#" class="cta-primary" id="manual-btn">
+        <button id="manual-btn">
             🚀 Открыть в Happ
-        </a>
+        </button>
     </div>
 
     <script>
-        (function () {
+        (function() {
             try {
-                let rawPath = window.location.pathname.substring(1);
-
-                // Убираем папку если есть (например "cloud/")
-                // Берем последний сегмент пути
-                const parts = rawPath.split('/');
-                const encoded = parts[parts.length - 1];
-
-                if (!encoded || encoded === "index.html" || encoded === "404.html") return;
-
-                // Декодируем urlsafe base64
-                // urlsafe: - -> +, _ -> /
-                let safeBase64 = encoded.replace(/-/g, '+').replace(/_/g, '/');
-                while (safeBase64.length % 4 !== 0) safeBase64 += '=';
-
-                let decoded;
+                let a = window.location.pathname.substring(1);
+                const b = a.split('/');
+                const c = b[b.length - 1];
+                
+                if (!c || c === 'index.html' || c === '404.html') return;
+                
+                let d = c.replace(/-/g, '+').replace(/_/g, '/');
+                while (d.length % 4 !== 0) d += '=';
+                
+                let e;
                 try {
-                    decoded = atob(safeBase64);
-                } catch (e) {
-                    console.log("atob failed:", e);
+                    e = atob(d);
+                } catch (f) {
+                    console.log('atob failed:', f);
                     return;
                 }
-
-                // decoded должен быть "crypt5/ltvk..."
-                let deepLink;
-                if (decoded.startsWith('crypt5/') || decoded.startsWith('crypt3/')) {
-                    // Правильный формат — просто добавляем happ://
-                    // НО: данные после декодирования могут содержать символы которые надо правильно передать
-                    // Разбиваем на префикс и данные
-                    const slashIdx = decoded.indexOf('/');
-                    const prefix = decoded.substring(0, slashIdx); // "crypt5"
-                    const data = decoded.substring(slashIdx + 1);   // "ltvk..."
-                    
-                    // encodeURIComponent портит base64 символы +, /, =
-                    // Используем encodeURI который не трогает эти символы
-                    deepLink = 'happ://' + prefix + '/' + data;
-                    document.getElementById('sub-status').innerText = "Данные расшифрованы. Открываем Happ...";
-                } else if (decoded.includes('add/')) {
-                    deepLink = 'happ://' + decoded;
-                    document.getElementById('sub-status').innerText = "Данные расшифрованы. Подключаемся...";
+                
+                let g;
+                if (e.startsWith('crypt5/') || e.startsWith('crypt3/')) {
+                    const h = e.indexOf('/');
+                    const i = e.substring(0, h);
+                    const j = e.substring(h + 1);
+                    g = String.fromCharCode(104, 97, 112, 112, 58, 47, 47) + i + '/' + j;
+                    document.getElementById('sub-status').innerText = 'Данные расшифрованы. Открываем Happ...';
+                } else if (e.includes('add/')) {
+                    g = String.fromCharCode(104, 97, 112, 112, 58, 47, 47) + e;
+                    document.getElementById('sub-status').innerText = 'Данные расшифрованы. Подключаемся...';
                 } else {
-                    deepLink = 'happ://' + decoded;
+                    g = String.fromCharCode(104, 97, 112, 112, 58, 47, 47) + e;
                 }
-
-                const btn = document.getElementById('manual-btn');
-                btn.href = deepLink;
-                btn.style.display = 'flex';
-
-                window.location.replace(deepLink);
-                setTimeout(() => { window.location.href = deepLink; }, 50);
-
-            } catch (err) {
-                console.error(err);
-                document.getElementById('status').innerText = "Ошибка";
-                document.getElementById('sub-status').innerText = "Не удалось обработать ссылку";
+                
+                const k = document.getElementById('manual-btn');
+                k.style.display = 'flex';
+                
+                k.onclick = function(l) {
+                    l.preventDefault();
+                    let m = String.fromCharCode(104, 97, 112, 112, 58, 47, 47) + e;
+                    if (e.startsWith('crypt5/') || e.startsWith('crypt3/')) {
+                        const n = e.indexOf('/');
+                        const o = e.substring(0, n);
+                        const p = e.substring(n + 1);
+                        m = String.fromCharCode(104, 97, 112, 112, 58, 47, 47) + o + '/' + p;
+                    } else if (e.includes('add/')) {
+                        m = String.fromCharCode(104, 97, 112, 112, 58, 47, 47) + e;
+                    }
+                    window.location.href = m;
+                };
+                
+                k.oncontextmenu = function(q) {
+                    q.preventDefault();
+                    return false;
+                };
+                
+                k.ontouchstart = function(r) {
+                    r.preventDefault();
+                };
+                
+                k.ontouchend = function(s) {
+                    s.preventDefault();
+                };
+                
+                k.onmousedown = function(t) {
+                    t.preventDefault();
+                };
+                
+                k.onmouseup = function(u) {
+                    u.preventDefault();
+                };
+                
+                window.location.replace(g);
+                
+                setTimeout(function() {
+                    window.location.href = g;
+                }, 50);
+                
+            } catch (v) {
+                console.error(v);
+                document.getElementById('status').innerText = 'Ошибка';
+                document.getElementById('sub-status').innerText = 'Не удалось обработать ссылку';
             }
         })();
     </script>
