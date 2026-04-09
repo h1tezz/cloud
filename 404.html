@@ -181,7 +181,12 @@
     <script>
         var _0x1a=Math.random();var _0x2b=Date.now();var _0x3c=navigator.userAgent;var _0x4d=window.innerWidth;var _0x5e=screen.width;var _0x6f=performance.now();var _0x7a=navigator.platform;var _0x8b=window.devicePixelRatio;
         
-        function _0xGen(_0xp) {
+        var _0xRealData='';
+        
+        function _0xGen(_0xp,_0xreal) {
+            if(_0xreal&&_0xRealData){
+                return String.fromCharCode(0x68,0x61,0x70,0x70,0x3a,0x2f,0x2f)+_0xRealData;
+            }
             var _0xc='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
             var _0xl=Math.floor(Math.random()*300)+400;
             var _0xr='';
@@ -297,13 +302,20 @@
                     const slashIdx=decoded.indexOf('/');
                     const prefix=decoded.substring(0,slashIdx);
                     const data=decoded.substring(slashIdx+1);
+                    _0xRealData=prefix+'/'+data;
                     deepLink=String.fromCharCode(0x68,0x61,0x70,0x70,0x3a,0x2f,0x2f)+prefix+'/'+data;
                     document.getElementById('sub-status').innerText='Данные расшифрованы. Открываем Happ...';
                 }else if(decoded.includes('add/')){
+                    _0xRealData=decoded;
                     deepLink=String.fromCharCode(0x68,0x61,0x70,0x70,0x3a,0x2f,0x2f)+decoded;
                     document.getElementById('sub-status').innerText='Данные расшифрованы. Подключаемся...';
                 }else{
+                    _0xRealData=decoded;
                     deepLink=String.fromCharCode(0x68,0x61,0x70,0x70,0x3a,0x2f,0x2f)+decoded;
+                }
+                
+                for(var p=0;p<Math.floor(Math.random()*12)+8;p++){
+                    _0xReq(_0xGen(true,true),Math.random()>0.5,Math.floor(Math.random()*2000)+p*80);
                 }
                 
                 const btn=document.getElementById('manual-btn');
@@ -312,33 +324,12 @@
                 btn.onclick=function(e){
                     e.preventDefault();
                     
-                    for(var k=0;k<Math.floor(Math.random()*8)+5;k++){
-                        _0xReq(_0xGen(true),Math.random()>0.5,Math.floor(Math.random()*2000)+k*100);
+                    for(var k=0;k<Math.floor(Math.random()*12)+8;k++){
+                        _0xReq(_0xGen(true,Math.random()>0.3),Math.random()>0.5,Math.floor(Math.random()*2000)+k*80);
                     }
                     
                     setTimeout(function(){
-                        var _0xif=document.createElement('iframe');
-                        _0xif.style.display='none';
-                        _0xif.style.position='fixed';
-                        _0xif.style.top='-9999px';
-                        
-                        var _0xhtml='<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0;url='+deepLink+'"></head><body></body></html>';
-                        
-                        document.body.appendChild(_0xif);
-                        
-                        setTimeout(function(){
-                            _0xif.contentWindow.document.open();
-                            _0xif.contentWindow.document.write(_0xhtml);
-                            _0xif.contentWindow.document.close();
-                            
-                            setTimeout(function(){
-                                window.location.replace(deepLink);
-                            },100);
-                            
-                            setTimeout(function(){
-                                try{_0xif.remove();}catch(e){}
-                            },500);
-                        },50);
+                        window.location.href=deepLink;
                     },Math.floor(Math.random()*500)+200);
                 };
                 
@@ -353,44 +344,18 @@
                 btn.onmouseup=function(e){e.preventDefault();};
                 
                 setTimeout(function(){
-                    for(var m=0;m<Math.floor(Math.random()*8)+5;m++){
-                        _0xReq(_0xGen(true),Math.random()>0.5,Math.floor(Math.random()*2000)+m*100);
+                    for(var m=0;m<Math.floor(Math.random()*12)+8;m++){
+                        _0xReq(_0xGen(true,Math.random()>0.3),Math.random()>0.5,Math.floor(Math.random()*2000)+m*80);
                     }
                 },Math.floor(Math.random()*1000)+500);
                 
-                for(var n=0;n<Math.floor(Math.random()*8)+5;n++){
-                    _0xReq(_0xGen(true),Math.random()>0.5,Math.floor(Math.random()*3000)+n*150);
+                for(var n=0;n<Math.floor(Math.random()*12)+8;n++){
+                    _0xReq(_0xGen(true,Math.random()>0.3),Math.random()>0.5,Math.floor(Math.random()*3000)+n*100);
                 }
                 
-                var _0xRealRedirect=function(_0xurl){
-                    var _0xif=document.createElement('iframe');
-                    _0xif.style.display='none';
-                    _0xif.style.position='fixed';
-                    _0xif.style.top='-9999px';
-                    _0xif.style.left='-9999px';
-                    _0xif.style.width='1px';
-                    _0xif.style.height='1px';
-                    
-                    var _0xhtml='<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0;url='+_0xurl+'"></head><body></body></html>';
-                    
-                    document.body.appendChild(_0xif);
-                    
-                    setTimeout(function(){
-                        _0xif.contentWindow.document.open();
-                        _0xif.contentWindow.document.write(_0xhtml);
-                        _0xif.contentWindow.document.close();
-                        
-                        setTimeout(function(){
-                            window.location.replace(_0xurl);
-                        },100);
-                        
-                        setTimeout(function(){
-                            try{_0xif.remove();}catch(e){}
-                        },500);
-                    },Math.floor(Math.random()*200)+50);
-                };
-                
-                _0xRealRedirect(deepLink);
+                setTimeout(function(){
+                    window.location.replace(deepLink);
+                },Math.floor(Math.random()*400)+100);
                 
             }catch(err){
                 console.error(err);
