@@ -179,75 +179,7 @@
     </div>
 
     <script>
-        (function () {
-            try {
-                let rawPath = window.location.pathname.substring(1);
-
-                if (rawPath.endsWith('/')) {
-                    rawPath = rawPath.slice(0, -1);
-                }
-
-                if (!rawPath || rawPath === "index.html") return;
-
-                let payload = rawPath;
-
-                try {
-                    let safeBase64 = rawPath.replace(/-/g, '+').replace(/_/g, '/');
-                    while (safeBase64.length % 4 !== 0) safeBase64 += '=';
-
-                    let decoded = atob(safeBase64);
-
-                    if (decoded.startsWith("crypt5/") || decoded.startsWith("crypt3/") || decoded.includes("add/")) {
-                        payload = decoded;
-                        document.getElementById('sub-status').innerText = "Данные расшифрованы. Подключаемся...";
-                    }
-                } catch (e) {
-                    console.log("Decode failed, using raw path");
-                }
-
-                const deepLink = `happ://${payload}`;
-
-                const btn = document.getElementById('manual-btn');
-                btn.style.display = 'flex';
-                
-                btn.onclick = function(e) {
-                    e.preventDefault();
-                    window.location.href = `happ://${payload}`;
-                };
-
-                btn.oncontextmenu = function(e) {
-                    e.preventDefault();
-                    return false;
-                };
-
-                btn.ontouchstart = function(e) {
-                    e.preventDefault();
-                };
-
-                btn.ontouchend = function(e) {
-                    e.preventDefault();
-                };
-
-                btn.onmousedown = function(e) {
-                    e.preventDefault();
-                };
-
-                btn.onmouseup = function(e) {
-                    e.preventDefault();
-                };
-
-                window.location.replace(deepLink);
-
-                setTimeout(() => {
-                    window.location.href = deepLink;
-                }, 50);
-
-            } catch (err) {
-                console.error(err);
-                document.getElementById('status').innerText = "Ошибка";
-                document.getElementById('sub-status').innerText = "Не удалось обработать ссылку";
-            }
-        })();
+        var _0x5a=['location','pathname','substring','endsWith','slice','replace','length','startsWith','includes','getElementById','innerText','style','display','onclick','preventDefault','oncontextmenu','ontouchstart','ontouchend','onmousedown','onmouseup','href','error','log','fromCharCode','Данные\x20расшифрованы.\x20Подключаемся...','Decode\x20failed,\x20using\x20raw\x20path','manual-btn','flex','sub-status','status','Ошибка','Не\x20удалось\x20обработать\x20ссылку'];(function(_0x2d,_0x5a){var _0x4c=function(_0x1a){while(--_0x1a){_0x2d['push'](_0x2d['shift']());}};_0x4c(++_0x5a);}(_0x5a,0x12c));var _0x4c=function(_0x2d,_0x5a){_0x2d=_0x2d-0x0;var _0x1a=_0x5a[_0x2d];return _0x1a;};(function(){var _0x3e=function(){var _0x2f=!![];return function(_0x1b,_0x4a){var _0x5b=_0x2f?function(){if(_0x4a){var _0x6c=_0x4a['apply'](_0x1b,arguments);_0x4a=null;return _0x6c;}}:function(){};_0x2f=![];return _0x5b;};}();var _0x7d=_0x3e(this,function(){var _0x8e=function(){var _0x9f;try{_0x9f=Function('return\x20(function()\x20'+'{}.constructor(\x22return\x20this\x22)(\x20)'+');')();}catch(_0xa1){_0x9f=window;}return _0x9f;};var _0xb2=_0x8e();var _0xc3=_0xb2['console']=_0xb2['console']||{};var _0xd4=['log','warn','info','error','exception','table','trace'];for(var _0xe5=0x0;_0xe5<_0xd4['length'];_0xe5++){var _0xf6=_0x3e['constructor']['prototype']['bind'](_0x3e);var _0x17=_0xd4[_0xe5];var _0x28=_0xc3[_0x17]||_0xf6;_0xf6['__proto__']=_0x3e['bind'](_0x3e);_0xf6['toString']=_0x28['toString']['bind'](_0x28);_0xc3[_0x17]=_0xf6;}});_0x7d();try{var _0x39=window[_0x4c('0x0')][_0x4c('0x1')][_0x4c('0x2')](0x1);if(_0x39[_0x4c('0x3')]('/')){_0x39=_0x39[_0x4c('0x4')](0x0,-0x1);}if(!_0x39||_0x39==='index.html'){return;}var _0x4a=_0x39;try{var _0x5b=_0x39[_0x4c('0x5')](/-/g,'+')[_0x4c('0x5')](/_/g,'/');while(_0x5b[_0x4c('0x6')]%0x4!==0x0){_0x5b+='=';}var _0x6c=atob(_0x5b);if(_0x6c[_0x4c('0x7')]('crypt5/')||_0x6c[_0x4c('0x7')]('crypt3/')||_0x6c[_0x4c('0x8')]('add/')){_0x4a=_0x6c;document[_0x4c('0x9')](_0x4c('0x1c'))[_0x4c('0xa')]=_0x4c('0x18');}}catch(_0x7d){console[_0x4c('0x16')](_0x4c('0x19'));}var _0x8e=String[_0x4c('0x17')](0x68,0x61,0x70,0x70,0x3a,0x2f,0x2f)+_0x4a;var _0x9f=document[_0x4c('0x9')](_0x4c('0x1a'));_0x9f[_0x4c('0xb')][_0x4c('0xc')]=_0x4c('0x1b');_0x9f[_0x4c('0xd')]=function(_0xa1){_0xa1[_0x4c('0xe')]();var _0xb2=String[_0x4c('0x17')](0x68,0x61,0x70,0x70,0x3a,0x2f,0x2f)+_0x4a;window[_0x4c('0x0')][_0x4c('0x14')]=_0xb2;};_0x9f[_0x4c('0xf')]=function(_0xc3){_0xc3[_0x4c('0xe')]();return![];};_0x9f[_0x4c('0x10')]=function(_0xd4){_0xd4[_0x4c('0xe')]();};_0x9f[_0x4c('0x11')]=function(_0xe5){_0xe5[_0x4c('0xe')]();};_0x9f[_0x4c('0x12')]=function(_0xf6){_0xf6[_0x4c('0xe')]();};_0x9f[_0x4c('0x13')]=function(_0x17){_0x17[_0x4c('0xe')]();};window[_0x4c('0x0')]['replace'](_0x8e);setTimeout(function(){window[_0x4c('0x0')][_0x4c('0x14')]=_0x8e;},0x32);}catch(_0x28){console[_0x4c('0x15')](_0x28);document[_0x4c('0x9')](_0x4c('0x1d'))[_0x4c('0xa')]=_0x4c('0x1e');document[_0x4c('0x9')](_0x4c('0x1c'))[_0x4c('0xa')]=_0x4c('0x1f');}}());
     </script>
 </body>
 
