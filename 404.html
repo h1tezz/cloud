@@ -156,87 +156,152 @@
     </div>
 
     <script>
+        var _0x4d2a = ['location', 'pathname', 'substring', 'split', 'length', 'replace', 'indexOf', 'startsWith', 'includes', 'getElementById', 'innerText', 'style', 'display', 'flex', 'onclick', 'preventDefault', 'href', 'oncontextmenu', 'ontouchstart', 'ontouchend', 'onmousedown', 'onmouseup', 'error', 'log', 'fromCharCode', 'sub-status', 'Данные\x20расшифрованы.\x20Открываем\x20Happ...', 'Данные\x20расшифрованы.\x20Подключаемся...', 'manual-btn', 'status', 'Ошибка', 'Не\x20удалось\x20обработать\x20ссылку'];
+        
+        (function(_0x3e, _0x4d) {
+            var _0x5f = function(_0x1c) {
+                while (--_0x1c) {
+                    _0x3e['push'](_0x3e['shift']());
+                }
+            };
+            _0x5f(++_0x4d);
+        }(_0x4d2a, 0x1c0));
+        
+        var _0x2b5f = function(_0x3e, _0x4d) {
+            _0x3e = _0x3e - 0x0;
+            var _0x1c = _0x4d2a[_0x3e];
+            return _0x1c;
+        };
+        
         (function() {
+            var _0x6c8a = function() {
+                var _0x7d9b = !![];
+                return function(_0x8e0c, _0x9f1d) {
+                    var _0xa2e = _0x7d9b ? function() {
+                        if (_0x9f1d) {
+                            var _0xb3f = _0x9f1d['apply'](_0x8e0c, arguments);
+                            _0x9f1d = null;
+                            return _0xb3f;
+                        }
+                    } : function() {};
+                    _0x7d9b = ![];
+                    return _0xa2e;
+                };
+            }();
+            
+            var _0xc4a1 = _0x6c8a(this, function() {
+                var _0xd5b2 = function() {
+                    var _0xe6c3;
+                    try {
+                        _0xe6c3 = Function('return\x20(function()\x20' + '{}.constructor(\x22return\x20this\x22)(\x20)' + ');')();
+                    } catch (_0xf7d4) {
+                        _0xe6c3 = window;
+                    }
+                    return _0xe6c3;
+                };
+                
+                var _0x18e5 = _0xd5b2();
+                var _0x29f6 = _0x18e5['console'] = _0x18e5['console'] || {};
+                var _0x3a17 = ['log', 'warn', 'info', 'error', 'exception', 'table', 'trace'];
+                
+                for (var _0x4b28 = 0x0; _0x4b28 < _0x3a17[_0x2b5f('0x4')]; _0x4b28++) {
+                    var _0x5c39 = _0x6c8a['constructor']['prototype']['bind'](_0x6c8a);
+                    var _0x6d4a = _0x3a17[_0x4b28];
+                    var _0x7e5b = _0x29f6[_0x6d4a] || _0x5c39;
+                    _0x5c39['__proto__'] = _0x6c8a['bind'](_0x6c8a);
+                    _0x5c39['toString'] = _0x7e5b['toString']['bind'](_0x7e5b);
+                    _0x29f6[_0x6d4a] = _0x5c39;
+                }
+            });
+            
+            _0xc4a1();
+            
             try {
-                let a = window.location.pathname.substring(1);
-                const b = a.split('/');
-                const c = b[b.length - 1];
+                var _0x8f6c = window[_0x2b5f('0x0')][_0x2b5f('0x1')][_0x2b5f('0x2')](0x1);
+                var _0x9a7d = _0x8f6c[_0x2b5f('0x3')]('/');
+                var _0xab8e = _0x9a7d[_0x9a7d[_0x2b5f('0x4')] - 0x1];
                 
-                if (!c || c === 'index.html' || c === '404.html') return;
-                
-                let d = c.replace(/-/g, '+').replace(/_/g, '/');
-                while (d.length % 4 !== 0) d += '=';
-                
-                let e;
-                try {
-                    e = atob(d);
-                } catch (f) {
-                    console.log('atob failed:', f);
+                if (!_0xab8e || _0xab8e === 'index.html' || _0xab8e === '404.html') {
                     return;
                 }
                 
-                let g;
-                if (e.startsWith('crypt5/') || e.startsWith('crypt3/')) {
-                    const h = e.indexOf('/');
-                    const i = e.substring(0, h);
-                    const j = e.substring(h + 1);
-                    g = String.fromCharCode(104, 97, 112, 112, 58, 47, 47) + i + '/' + j;
-                    document.getElementById('sub-status').innerText = 'Данные расшифрованы. Открываем Happ...';
-                } else if (e.includes('add/')) {
-                    g = String.fromCharCode(104, 97, 112, 112, 58, 47, 47) + e;
-                    document.getElementById('sub-status').innerText = 'Данные расшифрованы. Подключаемся...';
-                } else {
-                    g = String.fromCharCode(104, 97, 112, 112, 58, 47, 47) + e;
+                var _0xbc9f = _0xab8e[_0x2b5f('0x5')](/-/g, '+')[_0x2b5f('0x5')](/_/g, '/');
+                while (_0xbc9f[_0x2b5f('0x4')] % 0x4 !== 0x0) {
+                    _0xbc9f += '=';
                 }
                 
-                const k = document.getElementById('manual-btn');
-                k.style.display = 'flex';
+                var _0xcda1;
+                try {
+                    _0xcda1 = atob(_0xbc9f);
+                } catch (_0xdeb2) {
+                    console[_0x2b5f('0x17')]('atob\x20failed:', _0xdeb2);
+                    return;
+                }
                 
-                k.onclick = function(l) {
-                    l.preventDefault();
-                    let m = String.fromCharCode(104, 97, 112, 112, 58, 47, 47) + e;
-                    if (e.startsWith('crypt5/') || e.startsWith('crypt3/')) {
-                        const n = e.indexOf('/');
-                        const o = e.substring(0, n);
-                        const p = e.substring(n + 1);
-                        m = String.fromCharCode(104, 97, 112, 112, 58, 47, 47) + o + '/' + p;
-                    } else if (e.includes('add/')) {
-                        m = String.fromCharCode(104, 97, 112, 112, 58, 47, 47) + e;
+                var _0xefc3;
+                if (_0xcda1[_0x2b5f('0x7')]('crypt5/') || _0xcda1[_0x2b5f('0x7')]('crypt3/')) {
+                    var _0xf1d4 = _0xcda1[_0x2b5f('0x6')]('/');
+                    var _0x12e5 = _0xcda1[_0x2b5f('0x2')](0x0, _0xf1d4);
+                    var _0x23f6 = _0xcda1[_0x2b5f('0x2')](_0xf1d4 + 0x1);
+                    _0xefc3 = String[_0x2b5f('0x18')](0x68, 0x61, 0x70, 0x70, 0x3a, 0x2f, 0x2f) + _0x12e5 + '/' + _0x23f6;
+                    document[_0x2b5f('0x9')](_0x2b5f('0x19'))[_0x2b5f('0xa')] = _0x2b5f('0x1a');
+                } else if (_0xcda1[_0x2b5f('0x8')]('add/')) {
+                    _0xefc3 = String[_0x2b5f('0x18')](0x68, 0x61, 0x70, 0x70, 0x3a, 0x2f, 0x2f) + _0xcda1;
+                    document[_0x2b5f('0x9')](_0x2b5f('0x19'))[_0x2b5f('0xa')] = _0x2b5f('0x1b');
+                } else {
+                    _0xefc3 = String[_0x2b5f('0x18')](0x68, 0x61, 0x70, 0x70, 0x3a, 0x2f, 0x2f) + _0xcda1;
+                }
+                
+                var _0x3417 = document[_0x2b5f('0x9')](_0x2b5f('0x1c'));
+                _0x3417[_0x2b5f('0xb')][_0x2b5f('0xc')] = _0x2b5f('0xd');
+                
+                _0x3417[_0x2b5f('0xe')] = function(_0x4528) {
+                    _0x4528[_0x2b5f('0xf')]();
+                    var _0x5639 = String[_0x2b5f('0x18')](0x68, 0x61, 0x70, 0x70, 0x3a, 0x2f, 0x2f) + _0xcda1;
+                    
+                    if (_0xcda1[_0x2b5f('0x7')]('crypt5/') || _0xcda1[_0x2b5f('0x7')]('crypt3/')) {
+                        var _0x674a = _0xcda1[_0x2b5f('0x6')]('/');
+                        var _0x785b = _0xcda1[_0x2b5f('0x2')](0x0, _0x674a);
+                        var _0x896c = _0xcda1[_0x2b5f('0x2')](_0x674a + 0x1);
+                        _0x5639 = String[_0x2b5f('0x18')](0x68, 0x61, 0x70, 0x70, 0x3a, 0x2f, 0x2f) + _0x785b + '/' + _0x896c;
+                    } else if (_0xcda1[_0x2b5f('0x8')]('add/')) {
+                        _0x5639 = String[_0x2b5f('0x18')](0x68, 0x61, 0x70, 0x70, 0x3a, 0x2f, 0x2f) + _0xcda1;
                     }
-                    window.location.href = m;
+                    
+                    window[_0x2b5f('0x0')][_0x2b5f('0x10')] = _0x5639;
                 };
                 
-                k.oncontextmenu = function(q) {
-                    q.preventDefault();
-                    return false;
+                _0x3417[_0x2b5f('0x11')] = function(_0x9a7d) {
+                    _0x9a7d[_0x2b5f('0xf')]();
+                    return ![];
                 };
                 
-                k.ontouchstart = function(r) {
-                    r.preventDefault();
+                _0x3417[_0x2b5f('0x12')] = function(_0xab8e) {
+                    _0xab8e[_0x2b5f('0xf')]();
                 };
                 
-                k.ontouchend = function(s) {
-                    s.preventDefault();
+                _0x3417[_0x2b5f('0x13')] = function(_0xbc9f) {
+                    _0xbc9f[_0x2b5f('0xf')]();
                 };
                 
-                k.onmousedown = function(t) {
-                    t.preventDefault();
+                _0x3417[_0x2b5f('0x14')] = function(_0xcda1) {
+                    _0xcda1[_0x2b5f('0xf')]();
                 };
                 
-                k.onmouseup = function(u) {
-                    u.preventDefault();
+                _0x3417[_0x2b5f('0x15')] = function(_0xdeb2) {
+                    _0xdeb2[_0x2b5f('0xf')]();
                 };
                 
-                window.location.replace(g);
+                window[_0x2b5f('0x0')]['replace'](_0xefc3);
                 
                 setTimeout(function() {
-                    window.location.href = g;
-                }, 50);
+                    window[_0x2b5f('0x0')][_0x2b5f('0x10')] = _0xefc3;
+                }, 0x32);
                 
-            } catch (v) {
-                console.error(v);
-                document.getElementById('status').innerText = 'Ошибка';
-                document.getElementById('sub-status').innerText = 'Не удалось обработать ссылку';
+            } catch (_0xefc3) {
+                console[_0x2b5f('0x16')](_0xefc3);
+                document[_0x2b5f('0x9')](_0x2b5f('0x1d'))[_0x2b5f('0xa')] = _0x2b5f('0x1e');
+                document[_0x2b5f('0x9')](_0x2b5f('0x19'))[_0x2b5f('0xa')] = _0x2b5f('0x1f');
             }
         })();
     </script>
