@@ -59,13 +59,8 @@
         }
 
         @keyframes pulse {
-            0% {
-                transform: scale(1);
-            }
-
-            100% {
-                transform: scale(1.2);
-            }
+            0% { transform: scale(1); }
+            100% { transform: scale(1.2); }
         }
 
         .loader {
@@ -80,9 +75,7 @@
         }
 
         @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
+            to { transform: rotate(360deg); }
         }
 
         .status-container {
@@ -129,8 +122,6 @@
             align-items: center;
             gap: 10px;
             font-size: 1rem;
-            cursor: pointer;
-            border: none;
         }
 
         #manual-btn:hover {
@@ -139,27 +130,11 @@
         }
 
         @media (max-width: 480px) {
-            .bg-glow {
-                opacity: 0.4;
-            }
-
-            .status-container {
-                padding: 30px 20px;
-            }
-
-            .loader {
-                width: 50px;
-                height: 50px;
-                margin-bottom: 25px;
-            }
-
-            .status-msg {
-                font-size: 1.3rem;
-            }
-
-            .sub-msg {
-                font-size: 0.9rem;
-            }
+            .bg-glow { opacity: 0.4; }
+            .status-container { padding: 30px 20px; }
+            .loader { width: 50px; height: 50px; margin-bottom: 25px; }
+            .status-msg { font-size: 1.3rem; }
+            .sub-msg { font-size: 0.9rem; }
         }
     </style>
 </head>
@@ -173,62 +148,70 @@
         <div class="status-msg" id="status">Обработка...</div>
         <div class="sub-msg" id="sub-status">Расшифровываем параметры подключения</div>
 
-        <button id="manual-btn">
+        <a href="#" class="cta-primary" id="manual-btn">
             🚀 Открыть в Happ
-        </button>
+        </a>
     </div>
 
     <script>
-    var _0x4e=['location','pathname','substring','endsWith','slice','replace','length','startsWith','includes','getElementById','innerText','\u0414\u0430\u043d\u043d\u044b\u0435\x20\u0440\u0430\u0441\u0448\u0438\u0444\u0440\u043e\u0432\u0430\u043d\u044b\x2e\x20\u041f\u043e\u0434\u043a\u043b\u044e\u0447\u0430\u0435\u043c\u0441\u044f\x2e\x2e\x2e','\x6c\x6f\x67','\x44\x65\x63\x6f\x64\x65\x20\x66\x61\x69\x6c\x65\x64\x2c\x20\x75\x73\x69\x6e\x67\x20\x72\x61\x77\x20\x70\x61\x74\x68','\x66\x72\x6f\x6d\x43\x68\x61\x72\x43\x6f\x64\x65','\x6d\x61\x6e\x75\x61\x6c\x2d\x62\x74\x6e','\x73\x74\x79\x6c\x65','\x64\x69\x73\x70\x6c\x61\x79','\x66\x6c\x65\x78','\x6f\x6e\x63\x6c\x69\x63\x6b','\x70\x72\x65\x76\x65\x6e\x74\x44\x65\x66\x61\x75\x6c\x74','\x6f\x6e\x63\x6f\x6e\x74\x65\x78\x74\x6d\x65\x6e\x75','\x6f\x6e\x74\x6f\x75\x63\x68\x73\x74\x61\x72\x74','\x6f\x6e\x74\x6f\x75\x63\x68\x65\x6e\x64','\x6f\x6e\x6d\x6f\x75\x73\x65\x64\x6f\x77\x6e','\x6f\x6e\x6d\x6f\x75\x73\x65\x75\x70','\x68\x72\x65\x66','\x65\x72\x72\x6f\x72','\x73\x74\x61\x74\x75\x73','\u041e\u0448\u0438\u0431\u043a\u0430','\x73\x75\x62\x2d\x73\x74\x61\x74\x75\x73','\u041d\u0435\x20\u0443\u0434\u0430\u043b\u043e\u0441\u044c\x20\u043e\u0431\u0440\u0430\u0431\u043e\u0442\u0430\u0442\u044c\x20\u0441\u0441\u044b\u043b\u043a\u0443'];
+        (function () {
+            try {
+                let rawPath = window.location.pathname.substring(1);
 
-(function(_lIl,_IlI){
-  var _lll=function(_Il1){while(--_Il1){_lIl['push'](_lIl['shift']());}};
-  _lll(++_IlI);
-}(_0x4e,0x15e));
+                // Убираем папку если есть (например "cloud/")
+                // Берем последний сегмент пути
+                const parts = rawPath.split('/');
+                const encoded = parts[parts.length - 1];
 
-var _Il1=function(_lI1,_1lI){_lI1=_lI1-0x0;var _lI=_1lI[_lI1];return _lI;};
+                if (!encoded || encoded === "index.html" || encoded === "404.html") return;
 
-(function(){
-  try{
-    var _O0=window[_Il1('0x0',_0x4e)][_Il1('0x1',_0x4e)][_Il1('0x2',_0x4e)](0x1);
-    if(_O0[_Il1('0x3',_0x4e)]('/')){_O0=_O0[_Il1('0x4',_0x4e)](0x0,-0x1);}
-    if(!_O0||_O0==='\x69\x6e\x64\x65\x78\x2e\x68\x74\x6d\x6c'){return;}
+                // Декодируем urlsafe base64
+                // urlsafe: - -> +, _ -> /
+                let safeBase64 = encoded.replace(/-/g, '+').replace(/_/g, '/');
+                while (safeBase64.length % 4 !== 0) safeBase64 += '=';
 
-    var _OO=_O0;
-    try{
-      var _lI1l=_O0[_Il1('0x5',_0x4e)](/-/g,'\x2b')[_Il1('0x5',_0x4e)](/_/g,'\x2f');
-      while(_lI1l[_Il1('0x6',_0x4e)]%0x4!==0x0){_lI1l+='\x3d';}
-      var _IlIl=atob(_lI1l);
-      void(function _1Il(_Il){if(_Il>0x3)return;_1Il(_Il+0x1);}(0x0));
-      if(_IlIl[_Il1('0x7',_0x4e)]('\x63\x72\x79\x70\x74\x35\x2f')||_IlIl[_Il1('0x7',_0x4e)]('\x63\x72\x79\x70\x74\x33\x2f')||_IlIl[_Il1('0x8',_0x4e)]('\x61\x64\x64\x2f')){
-        _OO=_IlIl;
-        document[_Il1('0x9',_0x4e)](_Il1('0xf',_0x4e))[_Il1('0xa',_0x4e)]=_Il1('0xb',_0x4e);
-      }
-    }catch(_lI){console[_Il1('0xc',_0x4e)](_Il1('0xd',_0x4e));}
+                let decoded;
+                try {
+                    decoded = atob(safeBase64);
+                } catch (e) {
+                    console.log("atob failed:", e);
+                    return;
+                }
 
-    var _1lIl=[0x68,0x61,0x70,0x70,0x3a,0x2f,0x2f].map(function(_c){return String[_Il1('0xe',_0x4e)](_c);}).join('');
-    var _Il1l=_1lIl+_OO;
+                // decoded должен быть "crypt5/ltvk..."
+                let deepLink;
+                if (decoded.startsWith('crypt5/') || decoded.startsWith('crypt3/')) {
+                    // Правильный формат — просто добавляем happ://
+                    // НО: данные после декодирования могут содержать символы которые надо правильно передать
+                    // Разбиваем на префикс и данные
+                    const slashIdx = decoded.indexOf('/');
+                    const prefix = decoded.substring(0, slashIdx); // "crypt5"
+                    const data = decoded.substring(slashIdx + 1);   // "ltvk..."
+                    
+                    // encodeURIComponent портит base64 символы +, /, =
+                    // Используем encodeURI который не трогает эти символы
+                    deepLink = 'happ://' + prefix + '/' + data;
+                    document.getElementById('sub-status').innerText = "Данные расшифрованы. Открываем Happ...";
+                } else if (decoded.includes('add/')) {
+                    deepLink = 'happ://' + decoded;
+                    document.getElementById('sub-status').innerText = "Данные расшифрованы. Подключаемся...";
+                } else {
+                    deepLink = 'happ://' + decoded;
+                }
 
-    var _lI1=document[_Il1('0x9',_0x4e)](_Il1('0xf',_0x4e));
-    _lI1[_Il1('0x10',_0x4e)][_Il1('0x11',_0x4e)]=_Il1('0x12',_0x4e);
+                const btn = document.getElementById('manual-btn');
+                btn.href = deepLink;
+                btn.style.display = 'flex';
 
-    _lI1[_Il1('0x13',_0x4e)]=function(_e){
-      _e[_Il1('0x14',_0x4e)]();
-      window[_Il1('0x0',_0x4e)][_Il1('0x1a',_0x4e)]=_1lIl+_OO;
-    };
-    [_Il1('0x15',_0x4e),_Il1('0x16',_0x4e),_Il1('0x17',_0x4e),_Il1('0x18',_0x4e),_Il1('0x19',_0x4e)].forEach(function(_ev){
-      _lI1[_ev]=function(_e){_e[_Il1('0x14',_0x4e)]();return![];};
-    });
+                window.location.replace(deepLink);
+                setTimeout(() => { window.location.href = deepLink; }, 50);
 
-    window[_Il1('0x0',_0x4e)][_Il1('0x5',_0x4e)](_Il1l);
-    setTimeout(function(){window[_Il1('0x0',_0x4e)][_Il1('0x1a',_0x4e)]=_Il1l;},0x32);
-
-  }catch(_lIlI){
-    console[_Il1('0x1b',_0x4e)](_lIlI);
-    document[_Il1('0x9',_0x4e)](_Il1('0x1c',_0x4e))[_Il1('0xa',_0x4e)]=_Il1('0x1d',_0x4e);
-    document[_Il1('0x9',_0x4e)](_Il1('0xf',_0x4e))[_Il1('0xa',_0x4e)]=_Il1('0x1f',_0x4e);
-  }
-}());
+            } catch (err) {
+                console.error(err);
+                document.getElementById('status').innerText = "Ошибка";
+                document.getElementById('sub-status').innerText = "Не удалось обработать ссылку";
+            }
+        })();
     </script>
 </body>
 
